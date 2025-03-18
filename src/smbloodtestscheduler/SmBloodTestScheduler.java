@@ -44,16 +44,18 @@ public class SmBloodTestScheduler {
     public static void main(String[] args) {
         // Create a list of patient data to be added
         ArrayList<Person> newPatients = new ArrayList<>();
-        newPatients.add(new Person("Alice", "Urgent", 65, false, "Dr. Smith"));
-        newPatients.add(new Person("Bob", "Medium", 45, true, "Dr. Jones"));
-        newPatients.add(new Person("Charlie", "Low", 30, false, "Dr. Lee"));
-        newPatients.add(new Person("David", "Urgent", 70, true, "Dr. Brown"));
-        newPatients.add(new Person("Emma", "Medium", 50, false, "Dr. Green"));
-        newPatients.add(new Person("Frank", "Medium", 55, false, "Dr. Carter"));
-        newPatients.add(new Person("Grace", "Low", 40, false, "Dr. Adams"));
-        newPatients.add(new Person("Henry", "Urgent", 75, true, "Dr. Bennett"));
-        newPatients.add(new Person("Ivy", "Medium", 60, true, "Dr. Thompson"));
-        newPatients.add(new Person("Jack", "Low", 35, false, "Dr. Evans"));
+        
+    newPatients.add(new Person("Alice", "Urgent", 65, false, "Dr. Smith", true));
+    newPatients.add(new Person("Bob", "Medium", 45, true, "Dr. Jones", false));
+    newPatients.add(new Person("Charlie", "Low", 30, false, "Dr. Lee", true));
+    newPatients.add(new Person("David", "Urgent", 70, true, "Dr. Brown", false));
+    newPatients.add(new Person("Emma", "Medium", 50, false, "Dr. Green", true));
+    newPatients.add(new Person("Frank", "Medium", 55, false, "Dr. Carter", false));
+    newPatients.add(new Person("Grace", "Low", 40, false, "Dr. Adams", true));
+    newPatients.add(new Person("Henry", "Urgent", 75, true, "Dr. Bennett", false));
+    newPatients.add(new Person("Ivy", "Medium", 60, true, "Dr. Thompson", true));
+    newPatients.add(new Person("Jack", "Low", 35, false, "Dr. Evans", false));
+
 
         // Add all patients to the main list
         allPatients.addAll(newPatients);
@@ -138,17 +140,17 @@ public class SmBloodTestScheduler {
         }
     });
 
-    // Add new patients to the queue
-    patientQueue.add(new Person("Alice", "Urgent", 65, false, "Dr. Smith"));
-    patientQueue.add(new Person("Bob", "Medium", 45, true, "Dr. Jones"));
-    patientQueue.add(new Person("Charlie", "Low", 30, false, "Dr. Lee"));
-    patientQueue.add(new Person("David", "Urgent", 70, true, "Dr. Brown"));
-    patientQueue.add(new Person("Emma", "Medium", 50, false, "Dr. Green"));
-    patientQueue.add(new Person("Frank", "Medium", 55, false, "Dr. Carter"));
-    patientQueue.add(new Person("Grace", "Low", 40, false, "Dr. Adams"));
-    patientQueue.add(new Person("Henry", "Urgent", 75, true, "Dr. Bennett"));
-    patientQueue.add(new Person("Ivy", "Medium", 60, true, "Dr. Thompson"));
-    patientQueue.add(new Person("Jack", "Low", 35, false, "Dr. Evans"));
+    // Add new patients to the queue (replace with actual patient data)
+    patientQueue.add(new Person("Alice", "Urgent", 65, false, "Dr. Smith", false));
+    patientQueue.add(new Person("Bob", "Medium", 45, true, "Dr. Jones", true)); // Bob is a no-show
+    patientQueue.add(new Person("Charlie", "Low", 30, false, "Dr. Lee", false));
+    patientQueue.add(new Person("David", "Urgent", 70, true, "Dr. Brown", false));
+    patientQueue.add(new Person("Emma", "Medium", 50, false, "Dr. Green", true)); // Emma is a no-show
+    patientQueue.add(new Person("Frank", "Medium", 55, false, "Dr. Carter", false));
+    patientQueue.add(new Person("Grace", "Low", 40, false, "Dr. Adams", false));
+    patientQueue.add(new Person("Henry", "Urgent", 75, true, "Dr. Bennett", false));
+    patientQueue.add(new Person("Ivy", "Medium", 60, true, "Dr. Thompson", true)); // Ivy is a no-show
+    patientQueue.add(new Person("Jack", "Low", 35, false, "Dr. Evans", false));
 
     // Add all to the main patient list
     allPatients.addAll(patientQueue);
@@ -168,16 +170,22 @@ public class SmBloodTestScheduler {
 
     // Now, display the no-show patients in the NoShowTA
     StringBuilder sbNoShows = new StringBuilder();
-    if (BloodTestSchedulerGUISM.NoShowTA != null && !noShowPatients.isEmpty()) {
-        for (Person noShow : noShowPatients) {
-            sbNoShows.append(noShow.toString()).append(" has been marked as a no-show.\n");
+    if (BloodTestSchedulerGUISM.NoShowTA != null) {
+        // Loop through the allPatients list to check for no-shows
+        for (Person patient : allPatients) {
+            if (patient.isNoShow()) {
+                sbNoShows.append(patient.toString()).append(" has been marked as a no-show.\n");
+                
+            }
         }
-    } else {
-        sbNoShows.append("No patients marked as no-show.");
+        if (sbNoShows.length() == 0) {
+            sbNoShows.append("No patients marked as no-show.");
+        }
     }
 
     // Update the NoShowTA text area to display the no-show patients
     BloodTestSchedulerGUISM.NoShowTA.setText(sbNoShows.toString());
+    
 }
 
 public static String getNextPatient() {
@@ -239,34 +247,109 @@ public static void NoShows() {
         return;
     }
 
-    // Remove the current patient from the stack (mark as no-show)
-    Person noShowPatient = patientStack.pop();
-    String patientName = noShowPatient.getName();
+    // Mark the current patient as a no-show (set isNoShow to true)
+    Person currentPatient = patientStack.peek();  // Peek at the current patient on the stack
+    String patientName = currentPatient.getName();
+    
+    // Mark the current patient as a no-show
+    currentPatient.setNoShow(true);  // Assuming Person has a setNoShow method
 
-    // Remove the patient from the ArrayList
-    for (int i = 0; i < allPatients.size(); i++) {
-        if (allPatients.get(i).getName().equals(patientName)) {
-            allPatients.remove(i);
-            break;
-        }
-    }
-
-    // Debugging: Confirm that patient has been removed
-    System.out.println("Patient removed: " + patientName);
+    // Debugging: Confirm that patient is marked as no-show
+    System.out.println("Patient marked as no-show: " + patientName);
 
     // Update the NoShowTA text area to record the no-show
     String currentNoShows = BloodTestSchedulerGUISM.NoShowTA.getText();
     String updatedNoShows = currentNoShows + patientName + " has been marked as a no-show.\n";
     BloodTestSchedulerGUISM.NoShowTA.setText(updatedNoShows);
 
-    // Display the next patient
+    // Recursive call to process the next patient
+    // Pop the current patient and process the next one
+    patientStack.pop();
+    
+    // Check if there are any patients left to process
     if (!patientStack.isEmpty()) {
-        Person nextPatient = patientStack.peek();
-        BloodTestSchedulerGUISM.CurrentPatientTA.setText("Next patient: " + nextPatient.getName() + " - " + nextPatient.getDetails());
+        NoShows();  // Recursively process the next patient
     } else {
+        // No more patients in the stack, update the UI to reflect this
         BloodTestSchedulerGUISM.CurrentPatientTA.setText("No patients available.");
     }
 }
 
+public static void NameChecker() {
+    // Get the name input from the text field
+    String ClientName = BloodTestSchedulerGUISM.NameTF.getText().trim(); // Trim whitespace around the name
+
+    // Check if the name is empty
+    if (ClientName.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Provide a Name!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.NameTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.NameTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    // Check if the name contains only letters
+    if (!ClientName.matches("[a-zA-Z]+")) {
+        JOptionPane.showMessageDialog(null, "Letters only for the Name!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.NameTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.NameTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    // Check if the name length is more than 20 characters
+    if (ClientName.length() > 20) {
+        JOptionPane.showMessageDialog(null, "20 characters max for the Name!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.NameTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.NameTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    // Age Validation (same logic for age)
+    String ClientAge = BloodTestSchedulerGUISM.AgeTF.getText().trim();
+
+    if (ClientAge.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Provide an Age!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.AgeTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.AgeTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    if (!ClientAge.matches("[0-9]+")) {
+        JOptionPane.showMessageDialog(null, "Numbers only for the Age!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.AgeTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.AgeTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    if (ClientAge.length() > 2) {
+        JOptionPane.showMessageDialog(null, "2 characters max for the Age!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.AgeTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.AgeTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    // GP Details Validation
+    String DPDetails = BloodTestSchedulerGUISM.GPDetailsTF.getText().trim();
+
+    if (DPDetails.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Provide GP Details!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.GPDetailsTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.GPDetailsTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    if (!DPDetails.matches("[a-zA-Z]+")) {
+        JOptionPane.showMessageDialog(null, "Letters only for the Details!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.GPDetailsTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.GPDetailsTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    if (DPDetails.length() > 20) {
+        JOptionPane.showMessageDialog(null, "20 characters max for the Details!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.GPDetailsTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.GPDetailsTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+}
 
 }

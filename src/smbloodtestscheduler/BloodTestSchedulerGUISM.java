@@ -45,7 +45,7 @@ public class BloodTestSchedulerGUISM extends javax.swing.JFrame {
 }
     public static void addPatient() {
     // Make sure to call the validation method first before proceeding
-   
+    NameChecker();  // This checks Name, Age, and GP Details
 
     // Get user input from fields after validation
     String name = NameTF.getText();
@@ -85,7 +85,82 @@ public class BloodTestSchedulerGUISM extends javax.swing.JFrame {
     TrueFalseCB.setSelectedIndex(0);  // Reset to "No"
     LevelCB.setSelectedIndex(0);  // Reset to "Urgent"
 }
-    
+    public static void NameChecker() {
+    // Get the name input from the text field
+    String ClientName = BloodTestSchedulerGUISM.NameTF.getText().trim(); // Trim whitespace around the name
+
+    // Check if the name is empty
+    if (ClientName.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Provide a Name!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.NameTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.NameTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    // Check if the name contains only letters
+    if (!ClientName.matches("[a-zA-Z]+")) {
+        JOptionPane.showMessageDialog(null, "Letters only for the Name!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.NameTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.NameTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    // Check if the name length is more than 20 characters
+    if (ClientName.length() > 20) {
+        JOptionPane.showMessageDialog(null, "20 characters max for the Name!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.NameTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.NameTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    // Age Validation (same logic for age)
+    String ClientAge = BloodTestSchedulerGUISM.AgeTF.getText().trim();
+
+    if (ClientAge.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Provide an Age!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.AgeTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.AgeTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    if (!ClientAge.matches("[0-9]+")) {
+        JOptionPane.showMessageDialog(null, "Numbers only for the Age!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.AgeTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.AgeTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    if (ClientAge.length() > 2) {
+        JOptionPane.showMessageDialog(null, "2 characters max for the Age!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.AgeTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.AgeTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    // GP Details Validation
+    String DPDetails = BloodTestSchedulerGUISM.GPDetailsTF.getText().trim();
+
+    if (DPDetails.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Provide GP Details!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.GPDetailsTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.GPDetailsTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    if (!DPDetails.matches("[a-zA-Z]+")) {
+        JOptionPane.showMessageDialog(null, "Letters only for the Details!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.GPDetailsTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.GPDetailsTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+
+    if (DPDetails.length() > 20) {
+        JOptionPane.showMessageDialog(null, "20 characters max for the Details!", "Error", JOptionPane.ERROR_MESSAGE);
+        BloodTestSchedulerGUISM.GPDetailsTF.setBackground(new Color(227, 255, 246));
+        BloodTestSchedulerGUISM.GPDetailsTF.setText(""); // Clear the field
+        return; // Exit the method
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.

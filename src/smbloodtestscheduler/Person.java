@@ -10,15 +10,34 @@ class Person {
     private boolean fromHospitalWard;
     private String gpDetails;
     private String details;
+    private boolean NoShow;
 
+    public Person(String name, String urgency, int age, boolean fromHospitalWard, String gpDetails, boolean NoShow) {
+        this.name = name;
+        this.urgency = urgency;
+        this.age = age;
+        this.fromHospitalWard = fromHospitalWard;
+        this.gpDetails = gpDetails;
+        this.NoShow = NoShow;
+    }
     public Person(String name, String urgency, int age, boolean fromHospitalWard, String gpDetails) {
         this.name = name;
         this.urgency = urgency;
         this.age = age;
         this.fromHospitalWard = fromHospitalWard;
         this.gpDetails = gpDetails;
+        
     }
 
+    public void setNoShow(boolean NoShow) {
+        this.NoShow = NoShow;
+    }
+
+    public boolean isNoShow() {
+        return NoShow;
+    }
+
+    
     public String getName() {
         return name;
     }
@@ -46,7 +65,7 @@ class Person {
 
     @Override
     public String toString() {
-        return "Name: " + name + ", Urgency: " + urgency + ", Age: " + age + ", From Hospital Ward: " + fromHospitalWard + ", GP: " + gpDetails;
+        return "Name: " + name + ", Urgency: " + urgency + ", Age: " + age + ", From Hospital Ward: " + fromHospitalWard + ", GP: " + gpDetails + "No Show: " + NoShow;
     }
 }
 

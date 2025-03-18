@@ -112,16 +112,41 @@ public class SmBloodTestScheduler {
         return sb.toString();
     }
 
-    // Updates the queue display in the GUI
-    public static void updateQueueDisplay() {
-        StringBuilder sb = new StringBuilder();
-        for (Person patient : allPatients) {
-            sb.append(patient.toString()).append(" | ");
+   private static void updateQueueDisplay() {
+    // Rebuild the queue display with updated no-show status
+    StringBuilder sbQueue = new StringBuilder();
+    PriorityQueue<Person> updatedQueue = new PriorityQueue<>(new Comparator<Person>() {
+        @Override
+        public int compare(Person p1, Person p2) {
+            Map<String, Integer> urgencyMap = Map.of("Urgent", 3, "Medium", 2, "Low", 1);
+            int urgencyComparison = Integer.compare(urgencyMap.get(p2.getUrgency()), urgencyMap.get(p1.getUrgency()));
+            if (urgencyComparison != 0) return urgencyComparison;
+
+            int wardComparison = Boolean.compare(p2.isFromHospitalWard(), p1.isFromHospitalWard());
+            if (wardComparison != 0) return wardComparison;
+
+            return Integer.compare(p2.getAge(), p1.getAge());
         }
-        BloodTestSchedulerGUISM.QueueTa.setText(sb.toString());  // Updates the text area in the GUI
+    });
+
+    // Add the patients from allPatients to the updated queue
+    updatedQueue.addAll(allPatients);
+
+    // Build the updated string to display the queue
+    while (!updatedQueue.isEmpty()) {
+        Person patient = updatedQueue.poll();
+        if (patient.isNoShow()) {
+            sbQueue.append(patient.toString()).append(" (No-Show)\n");
+        } else {
+            sbQueue.append(patient.toString()).append("\n");
+        }
     }
 
- public static void displayClients() {
+    // Update the Queue JTextArea with the new display
+    BloodTestSchedulerGUISM.QueueTa.setText(sbQueue.toString());
+}
+
+public static void displayClients() {
     // Define a PriorityQueue with a custom comparator
     PriorityQueue<Person> patientQueue = new PriorityQueue<>(new Comparator<Person>() {
         @Override
@@ -161,7 +186,12 @@ public class SmBloodTestScheduler {
         sbQueue.append("No patients registered.");
     } else {
         while (!patientQueue.isEmpty()) {
-            sbQueue.append(patientQueue.poll().toString()).append("\n");
+            Person patient = patientQueue.poll();
+            if (patient.isNoShow()) {
+                sbQueue.append(patient.toString()).append(" (No-Show)\n");
+            } else {
+                sbQueue.append(patient.toString()).append("\n");
+            }
         }
     }
 
@@ -175,7 +205,6 @@ public class SmBloodTestScheduler {
         for (Person patient : allPatients) {
             if (patient.isNoShow()) {
                 sbNoShows.append(patient.toString()).append(" has been marked as a no-show.\n");
-                
             }
         }
         if (sbNoShows.length() == 0) {
@@ -185,7 +214,6 @@ public class SmBloodTestScheduler {
 
     // Update the NoShowTA text area to display the no-show patients
     BloodTestSchedulerGUISM.NoShowTA.setText(sbNoShows.toString());
-    
 }
 
 public static String getNextPatient() {
@@ -209,7 +237,7 @@ public static String getNextPatient() {
         Person nextPatient = allPatients.get(currentPatientIndex);
 
         // Update the display
-        BloodTestSchedulerGUISM.CurrentPatientTA.setText("Next patient: " + nextPatient.toString());
+        BloodTestSchedulerGUISM.CurrentPatientTA.setText(" patient: " + nextPatient.toString());
 
         // Move to the next patient
         currentPatientIndex = (currentPatientIndex + 1) % allPatients.size(); // Wrap around if we reach the end
@@ -262,8 +290,10 @@ public static void NoShows() {
     String updatedNoShows = currentNoShows + patientName + " has been marked as a no-show.\n";
     BloodTestSchedulerGUISM.NoShowTA.setText(updatedNoShows);
 
-    // Recursive call to process the next patient
-    // Pop the current patient and process the next one
+    // Update the QueueTa to reflect the no-show status
+    updateQueueDisplay();
+
+    // Pop the current patient from the stack
     patientStack.pop();
     
     // Check if there are any patients left to process

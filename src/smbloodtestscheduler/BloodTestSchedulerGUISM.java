@@ -1,20 +1,91 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
+package smbloodtestscheduler;
+
+import java.awt.Color;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author sarah
  */
-public class BloodTestSchedulerGUI extends javax.swing.JPanel {
+public class BloodTestSchedulerGUISM extends javax.swing.JFrame {
 
     /**
-     * Creates new form BloodTestSchedulerGUI
+     * Creates new form BloodTestSchedulerGUISM
      */
-    public BloodTestSchedulerGUI() {
+    public BloodTestSchedulerGUISM() {
         initComponents();
     }
+    public static void displayPatientDetails() {
+    // Assuming these are the client details you're saving
+    String clientName = NameTF.getText().trim();
+    String clientAge = AgeTF.getText().trim();
+    String gpDetails = GPDetailsTF.getText().trim();
+    String urgency = (String) LevelCB.getSelectedItem();
+    String hospitalWard = (String) TrueFalseCB.getSelectedItem();
+
+    // Check if the fields are empty before displaying
+    if (clientName.isEmpty() || clientAge.isEmpty() || gpDetails.isEmpty() || urgency.isEmpty() || hospitalWard.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Please provide all details first.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;  // Exit the method if details are missing
+    }
+
+    // Prepare the details to display
+    String patientDetails = "Name: " + clientName + "\n"
+                            + "Age: " + clientAge + "\n"
+                            + "GP Details: " + gpDetails + "\n"
+                            + "Urgency: " + urgency + "\n"
+                            + "Hospital Ward: " + hospitalWard;
+
+    // Display the details in a message dialog
+    JOptionPane.showMessageDialog(null, patientDetails, "Patient Details", JOptionPane.INFORMATION_MESSAGE);
+}
+    public static void addPatient() {
+    // Make sure to call the validation method first before proceeding
+   
+
+    // Get user input from fields after validation
+    String name = NameTF.getText();
+    String priority = (String) LevelCB.getSelectedItem(); // Get selected priority
+    String ageText = AgeTF.getText(); // Age input as String
+    boolean fromHospitalWard = TrueFalseCB.getSelectedItem().equals("Yes"); // Check if selected "Yes"
+    String gpDetails = GPDetailsTF.getText();
+
+    // Check if the age input is empty or invalid
+    if (ageText.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Please enter a valid age.", "Error", JOptionPane.ERROR_MESSAGE);
+        return; // Exit the method if the age is empty
+    }
+
+    // Check if the ageText contains only numbers (it can be checked via regex)
+    if (!ageText.matches("\\d+")) {
+        JOptionPane.showMessageDialog(null, "Age must be a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+        return; // Exit the method if the age is invalid
+    }
+
+    // Parse the age if it's a valid number
+    int age = Integer.parseInt(ageText);
+
+    // Create a new Person object with the user input
+    Person newPerson = new Person(name, priority, age, fromHospitalWard, gpDetails);
+
+    // Add the new Person to the list (queue, priority queue, or wherever needed)
+    SmBloodTestScheduler.addPerson(newPerson);  // Assuming this method adds to your lists
+
+    // Update the display area to show all registered patients
+    QueueTa.setText(SmBloodTestScheduler.getAllPatientsList()); // Refresh the display area
+
+    // Clear the input fields for the next entry
+    NameTF.setText("");
+    AgeTF.setText("");
+    GPDetailsTF.setText("");
+    TrueFalseCB.setSelectedIndex(0);  // Reset to "No"
+    LevelCB.setSelectedIndex(0);  // Reset to "Urgent"
+}
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -38,7 +109,6 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
         TrueFalseCB = new javax.swing.JComboBox<>();
         GPDetailsTF = new javax.swing.JTextField();
         AddBTN = new javax.swing.JButton();
-        ClearBTN = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         QueueJLB = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -51,6 +121,9 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
         NoShowJLB = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         NoShowTA = new javax.swing.JTextArea();
+        DisplayBTN = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         TitleJLB.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
         TitleJLB.setText("Add New Patient");
@@ -65,13 +138,28 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
 
         GPDetailsJLB.setText("GP Details:");
 
+        NameTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NameTFActionPerformed(evt);
+            }
+        });
+
         LevelCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Low", "Medium", "Urgent" }));
+
+        AgeTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AgeTFActionPerformed(evt);
+            }
+        });
 
         TrueFalseCB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "True", "False" }));
 
         AddBTN.setText("Add Patient");
-
-        ClearBTN.setText("Clear Details");
+        AddBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AddBTNActionPerformed(evt);
+            }
+        });
 
         QueueJLB.setText("Current Queue List:");
 
@@ -84,14 +172,31 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
         jScrollPane2.setViewportView(CurrentPatientTA);
 
         NextBTN.setText("Next Patient");
+        NextBTN.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                NextBTNMouseClicked(evt);
+            }
+        });
 
         NoShowBTN.setText("Mark as No-Show");
+        NoShowBTN.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                NoShowBTNMouseClicked(evt);
+            }
+        });
 
         NoShowJLB.setText("List Of No-Shows:");
 
         NoShowTA.setColumns(20);
         NoShowTA.setRows(5);
         jScrollPane3.setViewportView(NoShowTA);
+
+        DisplayBTN.setText("Display");
+        DisplayBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DisplayBTNActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -131,7 +236,7 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(AddBTN, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ClearBTN, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
+                    .addComponent(DisplayBTN, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(73, 73, 73))
             .addComponent(jSeparator1)
             .addComponent(jSeparator2)
@@ -156,7 +261,7 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
                                     .addComponent(NextBTN, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(NoShowBTN, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addGap(41, 41, 41)))))
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -179,13 +284,13 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(AgeJLB)
-                            .addComponent(AgeTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(ClearBTN))
+                            .addComponent(AgeTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(HospitalJLB)
-                            .addComponent(TrueFalseCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
+                            .addComponent(TrueFalseCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(DisplayBTN))
+                        .addGap(30, 30, 30)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(GPDetailsJLB)
                             .addComponent(GPDetailsTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -207,15 +312,14 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(NoShowBTN)
                         .addGap(28, 28, 28)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(NoShowJLB)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 17, Short.MAX_VALUE)
                 .addGap(12, 12, 12))
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -224,30 +328,92 @@ public class BloodTestSchedulerGUI extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
+
+        pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void NameTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NameTFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_NameTFActionPerformed
+
+    private void AgeTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AgeTFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_AgeTFActionPerformed
+
+    private void AddBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddBTNActionPerformed
+
+        addPatient(); // Call addPatient method when button is clicked
+    }//GEN-LAST:event_AddBTNActionPerformed
+
+    private void DisplayBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DisplayBTNActionPerformed
+       SmBloodTestScheduler.displayClients();
+      
+    }//GEN-LAST:event_DisplayBTNActionPerformed
+
+    private void NextBTNMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NextBTNMouseClicked
+     SmBloodTestScheduler.getNextPatient();
+    }//GEN-LAST:event_NextBTNMouseClicked
+
+    private void NoShowBTNMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_NoShowBTNMouseClicked
+    SmBloodTestScheduler.NoShows();
+    }//GEN-LAST:event_NoShowBTNMouseClicked
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(BloodTestSchedulerGUISM.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(BloodTestSchedulerGUISM.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(BloodTestSchedulerGUISM.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(BloodTestSchedulerGUISM.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new BloodTestSchedulerGUISM().setVisible(true);
+            }
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddBTN;
     private javax.swing.JLabel AgeJLB;
-    private javax.swing.JTextField AgeTF;
-    private javax.swing.JButton ClearBTN;
-    private javax.swing.JTextArea CurrentPatientTA;
+    public static javax.swing.JTextField AgeTF;
+    public static javax.swing.JTextArea CurrentPatientTA;
+    private javax.swing.JButton DisplayBTN;
     private javax.swing.JLabel GPDetailsJLB;
-    private javax.swing.JTextField GPDetailsTF;
+    public static javax.swing.JTextField GPDetailsTF;
     private javax.swing.JLabel HospitalJLB;
-    private javax.swing.JComboBox<String> LevelCB;
+    public static javax.swing.JComboBox<String> LevelCB;
     private javax.swing.JLabel NameJLB;
-    private javax.swing.JTextField NameTF;
+    public static javax.swing.JTextField NameTF;
     private javax.swing.JButton NextBTN;
     private javax.swing.JButton NoShowBTN;
     private javax.swing.JLabel NoShowJLB;
-    private javax.swing.JTextArea NoShowTA;
+    public static javax.swing.JTextArea NoShowTA;
     private javax.swing.JLabel PrioretyJLB;
     private javax.swing.JLabel QueueJLB;
-    private javax.swing.JTextArea QueueTa;
+    public static javax.swing.JTextArea QueueTa;
     private javax.swing.JLabel TitleJLB;
-    private javax.swing.JComboBox<String> TrueFalseCB;
+    public static javax.swing.JComboBox<String> TrueFalseCB;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
